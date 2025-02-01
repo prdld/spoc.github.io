@@ -1,10 +1,82 @@
 <!DOCTYPE html>
-<html>
-<body>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login Page</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="flex items-center justify-center min-h-screen bg-gray-100">
+    <div class="p-8 bg-white shadow-lg rounded-lg">
+      <a href="/" class="text-blue-500 hover:underline">Back to home</a>
+      <h2 class="mt-4 text-xl font-bold">Login (U: admin, P: admin)</h2>
+      <form onsubmit="handleSubmit(event)" class="mt-4 space-y-4">
+        <input
+          name="username"
+          class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+          placeholder="Username"
+          required
+        />
+        <input
+          name="password"
+          type="password"
+          class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+          placeholder="Password"
+          required
+        />
+        <button
+          type="submit"
+          id="submit-btn"
+          class="w-full py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+        >
+          Submit
+        </button>
+      </form>
+      <p id="loading" class="mt-2 text-sm text-blue-500 hidden">
+        ⏳ กำลังโหลด...
+      </p>
+      <p id="result" class="mt-2 text-sm"></p>
+    </div>
 
-<h1>login</h1>
+    <script>
+      const API_URL =
+        "https://script.google.com/macros/s/AKfycbyIwtWEPq5MYHDIehCaq8CC15_ysAwAdDanbefsF6Zk9P44zT2W62tZCiwjJbBltBtl9g/exec?path=";
 
+      const handleSubmit = async (event) => {
+        event.preventDefault();
+        const resultText = document.getElementById("result");
+        const loadingText = document.getElementById("loading");
+        const submitButton = document.getElementById("submit-btn");
 
+        loadingText.classList.remove("hidden");
+        resultText.innerText = "";
+        submitButton.disabled = true;
 
-</body>
+        const formData = new FormData(event.target);
+        const data = {
+          username: formData.get("username"),
+          password: formData.get("password"),
+        };
+
+        try {
+          const response = await fetch(API_URL + "login", {
+            method: "POST",
+            body: JSON.stringify(data),
+          });
+          const result = await response.json();
+          if (result.status === 200) {
+            alert(`🎉 ${result.data.message} go to Dashboard 🎉`);
+            window.location.href = "/dashboard/";
+          }
+          resultText.innerText = result.data.message;
+          resultText.classList.add("text-red-500");
+        } catch (error) {
+          resultText.innerText = "Error connecting to API.";
+        } finally {
+          loadingText.classList.add("hidden");
+          submitButton.disabled = false;
+        }
+      };
+    </script>
+  </body>
 </html>
